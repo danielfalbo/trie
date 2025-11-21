@@ -1,6 +1,20 @@
 // zig 0.16.0-dev.1399+
 const std = @import("std");
 
+const Trie = struct {
+    is_word: bool = false,
+    children: [26]?*Trie = .{null} ** 26,
+
+    pub fn deinit(self: *Trie, allocator: std.mem.Allocator) void {
+        for (self.children) |child_opt| {
+            if (child_opt) |child| {
+                child.deinit(allocator);
+            }
+        }
+        allocator.destroy(self);
+    }
+};
+
 pub fn main() !void {
     var gpa_impl = std.heap.GeneralPurposeAllocator(.{}){};
     const gpa = gpa_impl.allocator();
@@ -18,6 +32,11 @@ pub fn main() !void {
     var in_buffer: [4096]u8 = undefined;
     var stdin_impl = std.fs.File.stdin().reader(io, &in_buffer);
     const stdin = &stdin_impl.interface;
+
+    const root = try gpa.create(Trie);
+    defer root.deinit(gpa);
+
+    root.* = Trie{};
 
     while (true) {
         try stdout.writeAll("> ");
