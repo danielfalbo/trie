@@ -6,5 +6,8 @@ zig: trie.zig
 rust: trie.rs
 	rustc trie.rs
 
+rustacean: rustacean.rs
+	rustc rustacean.rs -o trie
+
 clean:
 	rm -f trie trie.o
